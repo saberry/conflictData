@@ -15,17 +15,27 @@ usOnly = eventDat %>%
   summarize(n = n()) %>%
   sum(n)
 
-allDat = eventDat %>%
+sideA = eventDat %>%
   select(side_a, year, side_b, deaths_b) %>%
   group_by(side_a, year, side_b) %>%
   arrange() %>%
-  summarize(n = n())
+  summarize(n = n()) %>%
+  mutate(role = "sideA") %>%
+  rename(perp = side_a, victim = side_b)
+
+sideB = eventDat %>%
+  select(side_a, year, side_b, deaths_a) %>%
+  group_by(side_b, year, side_a) %>%
+  arrange() %>%
+  summarize(n = n()) %>%
+  mutate(role = "sideB") %>%
+  rename(perp = side_b, victim = side_a)
+
+total = rbind(sideA, sideB) %>%
+  arrange(perp, year)
 
 countryTotals = eventDat %>%
   select(side_a, deaths_b) %>%
   group_by(side_a) %>%
   arrange() %>%
-  summarize(n = n()) %>%
-  mutate(year = "total")
-
-#everything = inner_join(x = allDat, y = countryTotals, by = c("side_a", "year"))
+  summarize(total = n())
