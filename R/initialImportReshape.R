@@ -34,8 +34,8 @@ sideB = eventDat %>%
 total = rbind(sideA, sideB) %>%
   arrange(perp, year)
 
-countryTotals = eventDat %>%
-  select(side_a, deaths_b) %>%
-  group_by(side_a) %>%
+groupTotals = total %>%
+  select(perp, year, n) %>%
+  group_by(perp, year) %>%
   arrange() %>%
   summarize(total = n())
