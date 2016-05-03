@@ -2,18 +2,11 @@
 
 load("data/uppsalaConflictData.RData")
 
-library(data.table); library(dplyr); library(tidyr)
+library(data.table); library(dplyr); library(tidyr); library(dygraphs)
 
 eventDat = data.table(ged40.rg@data)
 
 summary(eventDat)
-
-usOnly = eventDat %>%
-  filter(side_a == "Government of United States of America") %>%
-  select(side_a, year, side_b, deaths_b) %>%
-  group_by(side_a, year, side_b) %>%
-  summarize(n = n()) %>%
-  sum(n)
 
 sideA = eventDat %>%
   select(side_a, year, side_b, deaths_b) %>%
@@ -35,7 +28,12 @@ total = rbind(sideA, sideB) %>%
   arrange(perp, year)
 
 groupTotals = total %>%
-  select(perp, year, n) %>%
-  group_by(perp, year) %>%
-  arrange() %>%
-  summarize(total = n())
+  select(perp, year, n, role) %>%
+  group_by(perp, year, role) %>%
+  arrange()
+
+as.data.frame(groupTotals) %>%
+  select(year, perp, n, -role) %>%
+  filter(perp == "Government of United States of America") %>%
+  #data.frame() %>%
+  dygraph()
