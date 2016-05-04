@@ -27,13 +27,22 @@ sideB = eventDat %>%
 total = rbind(sideA, sideB) %>%
   arrange(perp, year)
 
-groupTotals = total %>%
+groupTotalsSide = total %>%
   select(perp, year, n, role) %>%
   group_by(perp, year, role) %>%
   arrange()
 
+groupTotals = total %>%
+  select(perp, year, n) %>%
+  group_by(perp, year) %>%
+  summarize(tot = sum(n)) %>%
+  arrange()
+
 as.data.frame(groupTotals) %>%
-  select(year, perp, n, -role) %>%
-  filter(perp == "Government of United States of America") %>%
-  #data.frame() %>%
-  dygraph()
+  select(year, perp, tot) %>%
+  arrange(year) %>%
+  spread(perp, tot) %>%
+  dygraph() %>%
+  dyLegend(show = "onmouseover") %>%
+  dyHighlight(highlightSeriesBackgroundAlpha = .2,
+              hideOnMouseOut = FALSE)
