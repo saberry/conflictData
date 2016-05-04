@@ -45,4 +45,5 @@ as.data.frame(groupTotals) %>%
   dygraph() %>%
   dyLegend(show = "onmouseover") %>%
   dyHighlight(highlightSeriesBackgroundAlpha = .2,
-              hideOnMouseOut = FALSE)
+              hideOnMouseOut = FALSE) %>%
+  dyCSS("dygraphLegend.css")
