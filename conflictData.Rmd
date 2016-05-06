@@ -1,0 +1,115 @@
+---
+title: "Uppsala Conflict Data"
+output:
+  html_document:
+    code_folding: hide
+    fig_width: 10
+    fig_height: 8
+    theme: lumen
+    toc: true
+    toc_float:
+      collapsed: true
+      smooth_scroll: false
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+load("conflictDat.RData")
+library(dygraphs); library(dplyr); library(tidyr); library(leaflet)
+library(broom); library(DT); library(ggplot2); library(ggvis)
+```
+
+## Purpose
+
+The purpose of this document is to document the process of reshaping the **Uppsala Conflict Data**. For our particular reshaping needs we are creating a long data set that will calculate the total number of people an actor has killed and actor's side within the conflict. There are two main data sets: one containing an actor's total per year (groupTotals) and one containing an actor's total per year and their side within the conflict (groupTotalsSide).
+
+It is important to note, that this data does not currently include civilians killed during conflict; it will, however, be included in the next version.
+
+Here are some brief snapshots of what this data looks like:
+
+### groupTotals
+
+```{r}
+datatable(data.frame(groupTotals))
+```
+
+
+### groupTotalsSide
+
+```{r}
+datatable(data.frame(groupTotalsSide))
+```
+
+## Data Summaries
+
+We can include all manners of summaries. Just for the fun of it, let's look at what some of the drug cartels are doing.
+
+```{r}
+cartelData = groupTotals %>% 
+  filter(perp == "Gulf Cartel" | 
+           perp == "Juarez Cartel" | 
+           perp == "Sinaloa Cartel" |
+           perp == "Tijuana Cartel" |
+           perp == "Los Zetas" |
+           perp == "La Familia" |
+           perp == "BeltrÃ¡n Leyva Cartel") 
+
+cartelData %>% 
+  summarize(avgDeaths = round(mean(tot))) %>% 
+  data.frame %>% 
+  datatable
+```
+
+
+## Visualizations
+
+### Static Visuals
+
+```{r}
+ggplot(cartelData, aes(as.factor(year), tot, color = perp)) +
+  geom_point(aes(size = tot), alpha = .5) +
+  scale_color_brewer(name = "Actor", palette = "Dark2") +
+  scale_size_continuous(guide = FALSE) +
+  labs(x = "Year", y = "Total Killed") +
+  lazerhawk::theme_trueMinimal()
+```
+
+
+### Interactive Visuals
+
+#### Subset
+
+```{r, eval=FALSE}
+droplevels(cartelData) %>% 
+  ggvis(~as.factor(year), ~tot) %>%
+  layer_points(fill = ~perp)
+  lazerhawk::ggClean()
+  layer_points()
+```
+
+
+#### Everything
+```{r}
+as.data.frame(groupTotals) %>%
+  select(year, perp, tot) %>%
+  arrange(year) %>%
+  spread(perp, tot) %>%
+  dygraph() %>%
+  dyLegend(show = "onmouseover") %>%
+  dyHighlight(highlightSeriesOpts = list(strokWidth = 7), 
+              highlightSeriesBackgroundAlpha = .2,
+              hideOnMouseOut = TRUE) %>%
+  dyCSS("dygraphLegend.css") %>% 
+  dyOptions(colors = RColorBrewer::brewer.pal(8, "Paired"))
+```
+
+
+#### Mapping
+```{r}
+eventDat %>% 
+  leaflet(data = eventDat) %>% 
+  addTiles() %>% 
+  addCircles(~longitude, ~latitude)
+```
+
+## Download Data

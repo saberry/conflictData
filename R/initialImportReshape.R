@@ -9,18 +9,18 @@ eventDat = data.table(ged40.rg@data)
 summary(eventDat)
 
 sideA = eventDat %>%
-  select(side_a, year, side_b, deaths_b) %>%
-  group_by(side_a, year, side_b) %>%
-  arrange() %>%
-  summarize(n = n()) %>%
+  select(side_a, year, side_b, deaths_b, country, region) %>%
+  group_by(side_a, year, side_b, country, region) %>%
+  #arrange() %>%
+  summarize(n = sum(deaths_b)) %>%
   mutate(role = "sideA") %>%
   rename(perp = side_a, victim = side_b)
 
 sideB = eventDat %>%
-  select(side_a, year, side_b, deaths_a) %>%
-  group_by(side_b, year, side_a) %>%
+  select(side_a, year, side_b, deaths_a, country, region) %>%
+  group_by(side_b, year, side_a, country, region) %>%
   arrange() %>%
-  summarize(n = n()) %>%
+  summarize(n = sum(deaths_a)) %>%
   mutate(role = "sideB") %>%
   rename(perp = side_b, victim = side_a)
 
@@ -28,13 +28,13 @@ total = rbind(sideA, sideB) %>%
   arrange(perp, year)
 
 groupTotalsSide = total %>%
-  select(perp, year, n, role) %>%
-  group_by(perp, year, role) %>%
+  select(perp, year, n, role, country, region) %>%
+  group_by(perp, year, role, country, region) %>%
   arrange()
 
 groupTotals = total %>%
-  select(perp, year, n) %>%
-  group_by(perp, year) %>%
+  select(perp, year, n, country, region) %>%
+  group_by(perp, year, country, region) %>%
   summarize(tot = sum(n)) %>%
   arrange()
 
@@ -47,3 +47,5 @@ as.data.frame(groupTotals) %>%
   dyHighlight(highlightSeriesBackgroundAlpha = .2,
               hideOnMouseOut = FALSE) %>%
   dyCSS("dygraphLegend.css")
+
+save(groupTotals, groupTotalsSide, file = "conflictDat.RData")
