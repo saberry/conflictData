@@ -106,10 +106,9 @@ as.data.frame(groupTotals) %>%
 
 #### Mapping
 ```{r}
-eventDat %>% 
-  leaflet(data = eventDat) %>% 
+leaflet(data = eventDat) %>% 
   addTiles() %>% 
-  addCircles(~longitude, ~latitude)
+  addCircles(~longitude, ~latitude, popup = ~dyad_name, radius = ~best_est)
 ```
 
 ## Download Data
