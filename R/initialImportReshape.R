@@ -59,4 +59,4 @@ as.data.frame(groupTotals) %>%
               hideOnMouseOut = FALSE) %>%
   dyCSS("dygraphLegend.css")
 
-save(groupTotals, groupTotalsSide, eventDat, file = "conflictDat.RData")
+save(groupTotals, groupTotalsSide, eventDat, topSpenders, file = "conflictDat.RData")
