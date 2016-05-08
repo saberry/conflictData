@@ -6,6 +6,9 @@ library(data.table); library(dplyr); library(tidyr); library(dygraphs)
 
 eventDat = data.table(ged40.rg@data)
 
+eventDat$deaths_b = ifelse(eventDat$deaths_b == 0 & eventDat$deaths_a == 0,
+       eventDat$deaths_civ, eventDat$deaths_b)
+
 summary(eventDat)
 
 sideA = eventDat %>%
